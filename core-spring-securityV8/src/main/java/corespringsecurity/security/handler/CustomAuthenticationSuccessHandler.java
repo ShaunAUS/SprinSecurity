@@ -18,8 +18,10 @@ import java.io.IOException;
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    //이전에 사용자가 가려고했던 데이터
     private RequestCache requestCache = new HttpSessionRequestCache();
 
+    //
     private RedirectStrategy redirectStrategy =new DefaultRedirectStrategy();
 
 

@@ -1,8 +1,8 @@
 package corespringsecurity.controller.login;
 
 
+import corespringsecurity.domain.entity.Account;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
@@ -16,12 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class loginController {
 
-
-
  //인증 실패시 로그인 페이지로 리다이렉트 이후 처리
- @GetMapping("/login")
- public String login(@RequestParam(value= "erroe", required = false)String error,
-                     @RequestParam(value= "erroe", required = false)String exception, Model model){
+ @GetMapping({"/login","api/login"})
+ public String login(@RequestParam(value= "error", required = false)String error,
+                     @RequestParam(value= "exception", required = false)String exception, Model model){
 
   model.addAttribute("error", error);
   model.addAttribute("exception", exception);
@@ -46,5 +44,23 @@ public class loginController {
 
   return"redirect:/login";
  }
+
+
+
+ @GetMapping({"/denied","api/denied"})
+ public String accessDenied(@RequestParam(value ="exception",required = false)String exception,Model model){
+
+  //인증한 유저의 userName 가져오기
+  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+  Account account = (Account) authentication.getPrincipal();
+
+  //userName과 exception 내용 전달
+  model.addAttribute("username",account.getUserName());
+  model.addAttribute("exception",exception);
+
+
+  return "user/login/denied";
+ }
+
 
 }

@@ -1,6 +1,6 @@
 package corespringsecurity.security.service;
 
-import corespringsecurity.domain.Account;
+import corespringsecurity.domain.entity.Account;
 import corespringsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,8 +21,6 @@ import java.util.List;
 public class CustomUserDetailService implements UserDetailsService {
 
     private UserRepository userRepository;
-
-
 
     //인증 요청 ->AuthenticationManager -> AuthenticationProvider -> 적절한 provider선택 뒤 loadUserByUsername() 발동 -> userName으로 userDetailService 인터페이스에서 사용자가 있는지 없는지 확인
     // 확인뒤 userDetails 타입으로 반환

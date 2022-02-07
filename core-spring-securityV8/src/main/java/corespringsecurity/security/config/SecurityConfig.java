@@ -1,12 +1,15 @@
 package corespringsecurity.security.config;
 
 
-import corespringsecurity.security.provider.CustomAuthenticationProvider;
+import corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import corespringsecurity.security.handler.CustomAccessDeniedHandler;
+import corespringsecurity.security.provider.FormAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,41 +19,41 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import java.security.cert.Extension;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Order(0)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailService;
-    private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final FormAuthenticationDetailsSource formAuthenticationDetailsSource;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
 
 
-    //userDetailService 를 구현한게 user + 우리가 만든것(?)
 
 
-    // 스프링 시큐리티가 우리가 만든 userDetailService 를 사용해서 '인증 처리'를 함
-    // userDetailService 를 구현한 CustomUserDetailService(우리가 만든)를 실행!
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-       // auth.userDetailsService(userDetailService);
 
+        //provider는 우리가 만든 userDetailService 를 사용하기 때문에(안에 포함되기때문에) provider 선언
         auth.authenticationProvider(authenticationProvider());
-    }
 
+        // 스프링 시큐리티가 우리가 만든 userDetailService 를 사용해서 '인증 처리'를 함
+        //auth.userDetailsService(userDetailService);
+
+    }
 
     //우리가 만든 provider 사용
     @Bean
     public AuthenticationProvider authenticationProvider() {
 
-        return new CustomAuthenticationProvider();
+        return new FormAuthenticationProvider(passwordEncoder());
     }
 
 
@@ -79,19 +82,44 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .anyRequest().authenticated()
 
-                .and()
+        .and()
 
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
-                .authenticationDetailsSource(authenticationDetailsSource)
+                .authenticationDetailsSource(formAuthenticationDetailsSource)
                 .defaultSuccessUrl("/")
-
                 //디테일까지 성공한뒤 ->인증 성공뒤 핸들러
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
-                .permitAll();
+                .permitAll()
+
+
+        .and()
+                //이게 사용될때(인가예외발생시) exceptionTranslateFilter가 작동
+                .exceptionHandling()
+                .accessDeniedHandler(accessDenidedHandler())
+
+
+                ;
+
     }
+
+    @Bean
+    private AccessDeniedHandler accessDenidedHandler() {
+
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+
+        return accessDeniedHandler;
+    }
+
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+
 
 
 }

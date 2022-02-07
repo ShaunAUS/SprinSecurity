@@ -20,7 +20,7 @@ public class FormwebAuthenticationDetails extends WebAuthenticationDetails {
     public FormwebAuthenticationDetails(HttpServletRequest request) {
         super(request);
         //클라로부터 전달돼는 추가 데이터 이름
-        String secret_key = request.getParameter("secret_key");
+        String secretKey = request.getParameter("secret_key");
 
     }
 }

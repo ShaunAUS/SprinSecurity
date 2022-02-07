@@ -1,7 +1,7 @@
 package corespringsecurity.controller.user;
 
-import corespringsecurity.domain.Account;
-import corespringsecurity.domain.AccountDTo;
+import corespringsecurity.domain.entity.Account;
+import corespringsecurity.domain.dto.AccountDTo;
 import corespringsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -37,6 +37,8 @@ public class UserController {
     public String createUser(AccountDTo accountDTo){
 
         ModelMapper modelMapper =new ModelMapper();
+
+        //Dto로 받은값  account 로 넣기
         Account account = modelMapper.map(accountDTo, Account.class);
         account.setPassWord(passwordEncoder.encode(account.getPassWord()));
         userService.createUser(account);
