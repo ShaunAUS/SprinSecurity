@@ -7,3 +7,5 @@
 - 자세한 내용은 제 기술블로그 https://velog.io/@wnsqud70?tag=SpringSecurity 에 포스팅 하였습니다.
 
 - core springSecurity 는 스프링시큐리티 학습한후 적용한 순차적으로 적용해본 파일입니다.
+
+- form 인증 방식위주로 구현했습니다.
